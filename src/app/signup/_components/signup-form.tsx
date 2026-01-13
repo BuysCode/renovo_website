@@ -5,6 +5,7 @@ import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import * as z from "zod"
 import { authClient, useSession } from "@/lib/auth-client"
+import { hash } from "bcrypt"
 
 import { Button } from "@/components/ui/button"
 import {
