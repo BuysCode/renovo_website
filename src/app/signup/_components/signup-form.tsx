@@ -25,8 +25,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
 
-import { prisma } from '@/lib/auth'
-
 const formSchema = z
     .object({
         email: z.email("Digite um e-mail válido."),
@@ -59,8 +57,6 @@ export function SignUpForm() {
     })
 
     async function onSubmit(data: z.infer<typeof formSchema>) {
-        const telephone_new = encrypt(process.env.PUBLIC_KEY!, data.telefone)    
-        const cpf_new = encrypt(process.env.SECRET_KEY!, data.cpf)    
         await authClient.signUp.email({
             email: data.email,
             name: data.name,
@@ -70,20 +66,6 @@ export function SignUpForm() {
         authClient.signIn.email({
             email: data.email,
             password: data.password
-        })
-
-        const user = session.data?.user
-
-        await prisma.user.update({
-            where: {
-                id: user?.id
-            },
-            data: {
-                cpf: data.cpf,
-                cpfShowable: cpf_new,
-                telefone: data.telefone,
-                telefoneShowable: telephone_new
-            }
         })
 
         push("/painel")
