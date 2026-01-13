@@ -1,2 +1,12 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+
+.no-spin::-webkit-outer-spin-button,
+.no-spin::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.no-spin {
+  appearance: textfield;
+}

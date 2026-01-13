@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import * as z from "zod"
-import { authClient } from "@/lib/auth-client"
+import { authClient, useSession } from "@/lib/auth-client"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -24,18 +24,16 @@ import {
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
 
+import { prisma } from '@/lib/auth'
+
 const formSchema = z
     .object({
-        email: z
-            .email("Digite um e-mail válido."),
-        name: z
-            .string("Digite um nome de usuário válido.")
-            .min(3, "O nome de usuário precisa ter no mínimo 3 caracteres")
-            .max(32, "O nome de usuário não pode ultrapassar 32 caracteres."),
-        password: z
-            .string()
-            .min(6, "A senha deve ter no mínimo 6 caracteres."),
+        email: z.email("Digite um e-mail válido."),
+        name: z.string("Digite um nome de usuário válido.").min(3, "O nome de usuário precisa ter no mínimo 3 caracteres").max(32, "O nome de usuário não pode ultrapassar 32 caracteres."),
+        password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres."),
         confirmPassword: z.string(),
+        cpf: z.string("Digite um CPF válido.").max(11, "O CPF não pode ultrapassar 11 caracteres."),
+        telefone: z.string("Digite um número de telefone válido").max(11, "O número de telefone não pode ultrapassar 11 caracteres.")
     })
     .refine((data) => data.password === data.confirmPassword, {
         message: "As senhas não conferem.",
@@ -45,6 +43,8 @@ const formSchema = z
 export function SignUpForm() {
     const { push } = useRouter()
 
+    const session = useSession()
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -52,16 +52,16 @@ export function SignUpForm() {
             name: "",
             password: "",
             confirmPassword: "",
+            cpf: "",
+            telefone: ""
         },
     })
 
-    async function onSubmit(data: z.infer<typeof formSchema>) {
-        toast.success("Cadastro realizado com sucesso!")
-        
+    async function onSubmit(data: z.infer<typeof formSchema>) {        
         await authClient.signUp.email({
             email: data.email,
             name: data.name,
-            password: data.password,
+            password: data.password
         })
 
         authClient.signIn.email({
@@ -69,7 +69,23 @@ export function SignUpForm() {
             password: data.password
         })
 
-        push("/painel") 
+        const user = session.data?.user
+
+        await prisma.user.update({
+            where: {
+                id: user?.id
+            },
+            data: {
+                cpf: data.cpf,
+                cpfShowable: data.cpf,
+                telefone: data.telefone,
+                telefoneShowable: data.telefone
+            }
+        })
+
+        push("/painel")
+
+        toast.success("Cadastro realizado com sucesso!")
     }
 
     return (
@@ -124,6 +140,52 @@ export function SignUpForm() {
                                         autoComplete="email"
                                         aria-invalid={fieldState.invalid}
                                         className="border-gray-500"
+                                    />
+                                    {fieldState.invalid && (
+                                        <FieldError errors={[fieldState.error]} />
+                                    )}
+                                </Field>
+                            )}
+                        />
+
+                        <Controller
+                            name="cpf"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor="register-cpf">
+                                        CPF
+                                    </FieldLabel>
+                                    <Input
+                                        {...field}
+                                        id="register-cpf"
+                                        type="number"
+                                        placeholder="Digite seu CPF (OBS.: Somente números, sem formatação)"
+                                        aria-invalid={fieldState.invalid}
+                                        className="border-gray-500 no-spin"
+                                    />
+                                    {fieldState.invalid && (
+                                        <FieldError errors={[fieldState.error]} />
+                                    )}
+                                </Field>
+                            )}
+                        />
+
+                        <Controller
+                            name="telefone"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor="register-telefone">
+                                        Telefone
+                                    </FieldLabel>
+                                    <Input
+                                        {...field}
+                                        id="register-telefone"
+                                        type="number"
+                                        placeholder="Digite seu número de telefone (OBS.: Somente números, sem formatação)"
+                                        aria-invalid={fieldState.invalid}
+                                        className="border-gray-500 no-spin"
                                     />
                                     {fieldState.invalid && (
                                         <FieldError errors={[fieldState.error]} />
