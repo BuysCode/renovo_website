@@ -42,8 +42,6 @@ const formSchema = z
 export function SignUpForm() {
     const { push } = useRouter()
 
-    const session = useSession()
-
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
