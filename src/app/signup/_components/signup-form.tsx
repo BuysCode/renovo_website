@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import * as z from "zod"
-import { authClient, useSession } from "@/lib/auth-client"
+import { authClient } from "@/lib/auth-client"
 import { encrypt } from '@/lib/security/encrypt'
 
 import { Button } from "@/components/ui/button"
@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
+import axios from 'axios'
 
 const formSchema = z
     .object({
@@ -64,6 +65,14 @@ export function SignUpForm() {
         authClient.signIn.email({
             email: data.email,
             password: data.password
+        })
+
+        const new_cpf = encrypt(process.env.PUBLIC_KEY!, data.cpf)
+        const new_phone_number = encrypt(process.env.PUBLIC_KEY!, data.telefone)
+
+        axios.post("http://localhost:3000/api/update/user/:id", {
+            cpf: new_cpf,
+            telefone: new_phone_number
         })
 
         push("/painel")
