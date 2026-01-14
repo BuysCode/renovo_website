@@ -69,12 +69,12 @@ export function SignUpForm() {
 
         push("/painel")
 
-        axios.post(`http://localhost:3000/api/update/user/${authClient.useSession().data?.user.id}`,
-            {
-                cpf: data.cpf,
-                phone: data.telefone
-            }
-        )
+        // axios.post(`http://localhost:3000/api/update/user/${authClient.useSession().data?.user.id}`,
+        //     {
+        //         cpf: data.cpf,
+        //         phone: data.telefone
+        //     }
+        // )
 
         toast.success("Cadastro realizado com sucesso!")
     }
