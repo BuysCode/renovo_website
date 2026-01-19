@@ -67,10 +67,6 @@ export function SignUpForm() {
             password: data.password
         })
 
-        const userId = authClient.useSession().data?.user.id
-
-        axios.put(`http://localhost:3000/api/complete_signup/user/${userId}`, { cpf: data.cpf, phone: data.telefone })
-
         push("/painel")
 
         toast.success("Cadastro realizado com sucesso!")
