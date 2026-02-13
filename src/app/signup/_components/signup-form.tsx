@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
-import axios from 'axios'
 
 const formSchema = z
     .object({
@@ -59,7 +58,11 @@ export function SignUpForm() {
         await authClient.signUp.email({
             email: data.email,
             name: data.name,
-            password: data.password
+            password: data.password,
+            cpf: data.cpf,
+            telefone: data.telefone,
+            cpfShowable: encrypt(data.cpf, process.env.RSA_PUBLIC_KEY!),
+            telefoneShowable: encrypt(data.telefone, process.env.RSA_PUBLIC_KEY!)
         })
 
         authClient.signIn.email({

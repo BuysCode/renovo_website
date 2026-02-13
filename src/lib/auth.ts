@@ -20,5 +20,28 @@ export const auth = betterAuth({
     },
     emailAndPassword: {
         enabled: true
+    },
+    user: {
+        additionalFields: {
+            cpf: {
+                type: "string",
+                input: true
+            },
+            cpfShowable: {
+                type: "string",
+                input: true
+            },
+            telefone: {
+                type: "string",
+                input: true
+            },
+            telefoneShowable: {
+                type: "string",
+                input: true
+            }
+        }
     }
 });
+
+export type Session = typeof auth.$Infer.Session
+export type User = typeof auth.$Infer.Session.user
